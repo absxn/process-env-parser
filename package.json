@@ -1,0 +1,22 @@
+{
+  "name": "@absxn/process-env-parser",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/process-env-parser.js",
+  "types": "dist/process-env-parser.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "absxn.com",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.6.8",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}

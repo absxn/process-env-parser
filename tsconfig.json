@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": [
+    "process-env-parser.ts"
+  ]
+}
