@@ -11,18 +11,19 @@ const result = parseEnvironmentVariables({
   SERVICE_NAME: {}
 });
 
-console.table(result.envPrintable);
-// ┌──────────────┬────────────────────────────────┐
-// │   (index)    │             Values             │
-// ├──────────────┼────────────────────────────────┤
-// │   API_KEY    │           '<masked>'           │
-// │ DATABASE_URL │ '"mysql://localhost:3306/app"' │
-// │ LISTEN_PORT  │             '8080'             │
-// │ SERVICE_NAME │            '"app"'             │
-// └──────────────┴────────────────────────────────┘
-
 if (result.success) {
-  // Inferred type:
+  // Sample success output
+  console.table(result.envPrintable);
+  // ┌──────────────┬────────────────────────────────┐
+  // │   (index)    │             Values             │
+  // ├──────────────┼────────────────────────────────┤
+  // │   API_KEY    │           '<masked>'           │
+  // │ DATABASE_URL │ '"mysql://localhost:3306/app"' │
+  // │ LISTEN_PORT  │             '8080'             │
+  // │ SERVICE_NAME │            '"app"'             │
+  // └──────────────┴────────────────────────────────┘
+
+  // Inferred type for successfully parsed environment
   // {
   //   API_KEY: string | null
   //   DATABASE_URL: string
@@ -31,6 +32,17 @@ if (result.success) {
   // }
   return result.env;
 } else {
+  // Sample failure output
+  console.table(result.envPrintable);
+  // ┌──────────────┬──────────────────────────────────────┐
+  // │   (index)    │                Values                │
+  // ├──────────────┼──────────────────────────────────────┤
+  // │   API_KEY    │ '<parser: "Invalid URL: localhost">' │
+  // │ DATABASE_URL │               '"3000"'               │
+  // │ LISTEN_PORT  │             '<missing>'              │
+  // │ SERVICE_NAME │                'null'                │
+  // └──────────────┴──────────────────────────────────────┘
+
   throw new Error("Could not parse environment variables");
 }
 ```
