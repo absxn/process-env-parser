@@ -3,6 +3,38 @@
 Straightforward and type-safe environment variable validation, parsing, and
 debugging for `node` applications.
 
+```typescript
+const result = parseEnvironmentVariables({
+  API_KEY: { mask: true, default: null },
+  DATABASE_URL: { parser: s => new URL(s).toString() },
+  LISTEN_PORT: { parser: parseInt, default: 3000 },
+  SERVICE_NAME: {}
+});
+
+console.table(result.envPrintable);
+// ┌──────────────┬────────────────────────────────┐
+// │   (index)    │             Values             │
+// ├──────────────┼────────────────────────────────┤
+// │   API_KEY    │           '<masked>'           │
+// │ DATABASE_URL │ '"mysql://localhost:3306/app"' │
+// │ LISTEN_PORT  │             '8080'             │
+// │ SERVICE_NAME │            '"app"'             │
+// └──────────────┴────────────────────────────────┘
+
+if (result.success) {
+  // Inferred type:
+  // {
+  //   API_KEY: string | null
+  //   DATABASE_URL: string
+  //   LISTEN_PORT: number
+  //   SERVICE_NAME: string
+  // }
+  return result.env;
+} else {
+  throw new Error("Could not parse environment variables");
+}
+```
+
 - [Rationale](#rationale)
 - [Installation and usage](#installation-and-usage)
 - [Examples](#examples)
