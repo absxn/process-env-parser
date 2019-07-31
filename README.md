@@ -92,7 +92,7 @@ $ A=hello B=world node app
 #### Code
 
 ```typescript
-// Type: Success<T> | Fail
+// Type: Success | Fail
 const result = requireEnvironmentVariables("A", "B");
 
 if (result.success) {
