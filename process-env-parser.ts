@@ -29,45 +29,40 @@ type Mapping = {
   [key: string]: ReadEnvConfig;
 };
 
+interface Status<T extends Mapping> {
+  /**
+   * Use this field to check whether to handle Success or Fail type
+   */
+  readonly success: boolean;
+  /**
+   * Same mapping as env, but all values are strings and contain
+   * human-readable, loggable, values for parser exceptions, missing values,
+   * and actual values.
+   */
+  readonly envPrintable: Readonly<PrintableResult<T>>;
+}
+
 /**
  * If all required variables were found and parsed correctly, this object is
  * returned.
  */
-type Success<T extends Mapping> = {
-  /**
-   * Use this field to check whether to handle Success or Fail type
-   */
-  success: true;
+interface Success<T extends Mapping> extends Status<T> {
+  readonly success: true;
   /**
    * Object with keys representing the environment variable names, and values
    * representing either the variable values as strings, or as the return value
    * of their respective parser function.
    */
-  env: Result<T>;
-  /**
-   * Same mapping as env, but all values are strings and contain
-   * human-readable, loggable, values for parser exceptions, missing values,
-   * and actual values.
-   */
-  envPrintable: PrintableResult<T>;
-};
+  readonly env: Readonly<Result<T>>;
+}
 
 /**
  * If any required variable was missing, or any parser threw an exception, this
  * object is returned.
  */
-type Fail<T extends Mapping> = {
-  /**
-   * Use this field to check whether to handle Success or Fail type
-   */
-  success: false;
-  /**
-   * Same mapping as env, but all values are strings and contain
-   * human-readable, loggable, values for parser exceptions, missing values,
-   * and actual values.
-   */
-  envPrintable: PrintableResult<T>;
-};
+interface Fail<T extends Mapping> extends Status<T> {
+  readonly success: false;
+}
 
 type ParserResult<T extends Mapping> = Success<T> | Fail<T>;
 
