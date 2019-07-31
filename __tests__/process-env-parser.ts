@@ -9,10 +9,8 @@ describe("Environment variable parser", () => {
     const result = parseEnvironmentVariables({ A: {} });
     expect(result).toEqual({
       success: true,
-      message: `A="A"`,
-      env: {
-        A: "A"
-      }
+      env: { A: "A" },
+      envPrintable: { A: `"A"` }
     });
   });
 
@@ -25,7 +23,11 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: false,
-      message: `A="A", MISSING=<missing>, MISSING_TOO=<missing>`
+      envPrintable: {
+        A: `"A"`,
+        MISSING: "<missing>",
+        MISSING_TOO: "<missing>"
+      }
     });
   });
 
@@ -34,10 +36,8 @@ describe("Environment variable parser", () => {
     const result = parseEnvironmentVariables({ A: { parser: parseInt } });
     expect(result).toEqual({
       success: true,
-      message: "A=1234",
-      env: {
-        A: 1234
-      }
+      env: { A: 1234 },
+      envPrintable: { A: "1234" }
     });
   });
 
@@ -49,11 +49,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `A="A", OPTIONAL="OPTIONAL"`,
-      env: {
-        A: "A",
-        OPTIONAL: "OPTIONAL"
-      }
+      env: { A: "A", OPTIONAL: "OPTIONAL" },
+      envPrintable: { A: `"A"`, OPTIONAL: `"OPTIONAL"` }
     });
   });
 
@@ -64,10 +61,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `PARSED_OPTIONAL=1234`,
-      env: {
-        PARSED_OPTIONAL: 1234
-      }
+      env: { PARSED_OPTIONAL: 1234 },
+      envPrintable: { PARSED_OPTIONAL: "1234" }
     });
   });
 
@@ -77,10 +72,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `PARSED_OPTIONAL_MISSING=4321`,
-      env: {
-        PARSED_OPTIONAL_MISSING: 4321
-      }
+      env: { PARSED_OPTIONAL_MISSING: 4321 },
+      envPrintable: { PARSED_OPTIONAL_MISSING: "4321" }
     });
   });
 
@@ -91,10 +84,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `MASK=<masked>`,
-      env: {
-        MASK: "secret"
-      }
+      env: { MASK: "secret" },
+      envPrintable: { MASK: "<masked>" }
     });
   });
 
@@ -105,10 +96,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `MASK=<masked>`,
-      env: {
-        MASK: 1234
-      }
+      env: { MASK: 1234 },
+      envPrintable: { MASK: "<masked>" }
     });
   });
 
@@ -124,7 +113,7 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: false,
-      message: `MASK=<parser: "ERROR">`
+      envPrintable: { MASK: `<parser: "ERROR">` }
     });
   });
 
@@ -134,10 +123,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `MASKED_DEFAULT=<masked>`,
-      env: {
-        MASKED_DEFAULT: "secret"
-      }
+      env: { MASKED_DEFAULT: "secret" },
+      envPrintable: { MASKED_DEFAULT: "<masked>" }
     });
   });
 
@@ -147,10 +134,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: `PARSED_OPTIONAL_MISSING="STRING"`,
-      env: {
-        PARSED_OPTIONAL_MISSING: "STRING"
-      }
+      env: { PARSED_OPTIONAL_MISSING: "STRING" },
+      envPrintable: { PARSED_OPTIONAL_MISSING: `"STRING"` }
     });
   });
 
@@ -165,7 +150,7 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: false,
-      message: 'A=<parser: "ERROR">'
+      envPrintable: { A: `<parser: "ERROR">` }
     });
   });
 
@@ -177,10 +162,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: "V=true",
-      env: {
-        V: true
-      }
+      env: { V: true },
+      envPrintable: { V: "true" }
     });
   });
 
@@ -192,10 +175,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: "V=null",
-      env: {
-        V: null
-      }
+      env: { V: null },
+      envPrintable: { V: "null" }
     });
   });
 
@@ -207,10 +188,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: "V=undefined",
-      env: {
-        V: undefined
-      }
+      env: { V: undefined },
+      envPrintable: { V: "undefined" }
     });
   });
 
@@ -222,10 +201,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: "V=object",
-      env: {
-        V: { key: "value" }
-      }
+      env: { V: { key: "value" } },
+      envPrintable: { V: "object" }
     });
   });
 
@@ -238,10 +215,8 @@ describe("Environment variable parser", () => {
     });
     expect(result).toEqual({
       success: true,
-      message: "V=function",
-      env: {
-        V: func
-      }
+      env: { V: func },
+      envPrintable: { V: "function" }
     });
   });
 });
@@ -252,10 +227,8 @@ describe("Simple environment variable parser", () => {
     const result = requireEnvironmentVariables("A");
     expect(result).toEqual({
       success: true,
-      message: `A="A"`,
-      env: {
-        A: "A"
-      }
+      env: { A: "A" },
+      envPrintable: { A: `"A"` }
     });
   });
 
@@ -264,7 +237,7 @@ describe("Simple environment variable parser", () => {
     const result = requireEnvironmentVariables("A", "MISSING");
     expect(result).toEqual({
       success: false,
-      message: `A="A", MISSING=<missing>`
+      envPrintable: { A: `"A"`, MISSING: "<missing>" }
     });
   });
 });

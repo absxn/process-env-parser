@@ -20,6 +20,11 @@ type Result<T extends Mapping> = {
     T[k] extends Parser<any> ? ReturnType<T[k]["parser"]> : string
   >;
 };
+
+type PrintableResult<T extends Mapping> = {
+  [k in keyof T]: string;
+};
+
 type Mapping = {
   [key: string]: ReadEnvConfig;
 };
@@ -34,33 +39,37 @@ type Success<T extends Mapping> = {
    */
   success: true;
   /**
-   * Usage string, showing the parsed variables and their values (unless masked)
-   */
-  message: string;
-  /**
    * Object with keys representing the environment variable names, and values
    * representing either the variable values as strings, or as the return value
    * of their respective parser function.
    */
   env: Result<T>;
+  /**
+   * Same mapping as env, but all values are strings and contain
+   * human-readable, loggable, values for parser exceptions, missing values,
+   * and actual values.
+   */
+  envPrintable: PrintableResult<T>;
 };
 
 /**
  * If any required variable was missing, or any parser threw an exception, this
  * object is returned.
  */
-type Fail = {
+type Fail<T extends Mapping> = {
   /**
    * Use this field to check whether to handle Success or Fail type
    */
   success: false;
   /**
-   * Usage string, showing the parsed variables and their values (unless masked)
+   * Same mapping as env, but all values are strings and contain
+   * human-readable, loggable, values for parser exceptions, missing values,
+   * and actual values.
    */
-  message: string;
+  envPrintable: PrintableResult<T>;
 };
 
-type ParserResult<T extends Mapping> = Success<T> | Fail;
+type ParserResult<T extends Mapping> = Success<T> | Fail<T>;
 
 const variableToString = (variable: any): string => {
   const typeOf = typeof variable;
@@ -90,51 +99,47 @@ export const parseEnvironmentVariables = <T extends Mapping>(
 ): ParserResult<T> => {
   const variables = Object.keys(variableConfigs) as (keyof T)[];
   const result = {} as Result<T>;
-  const texts = [] as [(keyof T), boolean, string][];
+  const printableResult = {} as PrintableResult<T>;
+  let fail = false;
+
   for (const variable of variables) {
     const value = env[variable as string];
     const config = variableConfigs[variable];
     if (value !== undefined) {
       try {
         result[variable] = config.parser ? config.parser(value) : value;
-        texts.push([
-          variable,
-          true,
-          `${config.mask ? "<masked>" : JSON.stringify(result[variable])}`
-        ]);
+        printableResult[variable] = config.mask
+          ? "<masked>"
+          : JSON.stringify(result[variable]);
       } catch (e) {
-        texts.push([variable, false, `<parser: "${e.message}">`]);
+        printableResult[variable] = `<parser: "${e.message}">`;
+        fail = true;
       }
     } else {
       // If default has been set to falsy, e.g. null or explicit undefined, we
       // need to check for existence of property in runtime
       if ((config as {}).hasOwnProperty("default")) {
         result[variable] = config.default;
-        texts.push([
-          variable,
-          true,
-          `${config.mask ? "<masked>" : variableToString(result[variable])}`
-        ]);
+        printableResult[variable] = `${
+          config.mask ? "<masked>" : variableToString(result[variable])
+        }`;
       } else {
-        texts.push([variable, false, "<missing>"]);
+        printableResult[variable] = "<missing>";
+        fail = true;
       }
     }
   }
 
-  const message = `${[...texts.sort(([aKey], [bKey]) => (aKey > bKey ? 1 : 0))]
-    .map(([key, _isOk, text]) => `${key}=${text}`)
-    .join(", ")}`;
-
-  if (texts.find(([_, isOk]) => !isOk) !== undefined) {
+  if (fail) {
     return {
       success: false,
-      message
+      envPrintable: printableResult
     };
   } else {
     return {
       success: true,
-      message,
-      env: result
+      env: result,
+      envPrintable: printableResult
     };
   }
 };

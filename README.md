@@ -22,7 +22,7 @@ $ ENV_VAR_A=Hello ENV_VAR_B=World node app.js arg1 arg2 --arg3
 
 In order to build reliable software, and minimize runtime surprises, you'll
 want to follow the [fail-fast design](https://en.wikipedia.org/wiki/Fail-fast)
-and *ensure that your program inputs are correct as early on as possible*.
+and _ensure that your program inputs are correct as early on as possible_.
 Everything the program does afterwards is be based on these inputs.
 
 For example, ensuring that a required database URL is correctly passed to the
@@ -53,19 +53,23 @@ Both functions return the same `Success | Fail` object:
 
 type Success = {
   success: true;
-  message: string; // Human readable results for logging and debugging
-                   // E.g. `ENV_VAR_A=<missing>, ENV_VAR_B="World", PASSWORD=<masked>`
   env: {
     [variableName: string]:
       | InferredParserFunctionReturnType // If `parser` option used
       | InferredDefaultValueType // If `default` option used
       | string; // No options used
   };
+  envPrintable: {
+    // Human readable results for logging and debugging
+    // E.g. `ENV_VAR_A=<missing>, ENV_VAR_B="World", PASSWORD=<masked>`
+    [variableName: string]: string;
+  };
 };
 
 type Fail = {
   success: false;
-  message: string; // Same as for Success
+  // Same as for Success
+  envPrintable: { [variableName: string]: string };
 };
 ```
 
@@ -92,8 +96,13 @@ $ A=hello B=world node app
 const result = requireEnvironmentVariables("A", "B");
 
 if (result.success) {
-  // Message: `A="hello", B="world"`
-  console.log(result.message);
+  console.table(result.envPrintable);
+  // ┌─────────┬───────────┐
+  // │ (index) │  Values   │
+  // ├─────────┼───────────┤
+  // │    A    │ '"hello"' │
+  // │    B    │ '"world"' │
+  // └─────────┴───────────┘
 
   // Type: { A: string, B: string }
   // Value: { A: "hello", B: "world" }
@@ -127,7 +136,7 @@ interface Config {
     // object.
     parser?: (value: string) => any;
     // If `true`, the value of the variable is never shown in plain text in
-    // the `message` field of the return object. Value is indicated as
+    // the `envPrintable` fields of the return object. Value is indicated as
     // `<masked>`.
     mask?: boolean;
   };
@@ -139,7 +148,7 @@ To succeed:
 - All varibales with no `default` given must exist in the environment
 - No `parser` may throw
   - Parser exceptions turn result into `Fail` and the exception message is
-    captured in the `message` field. See examples below.
+    captured in the `envPrintable` fields. See examples below.
 
 Default value is used as is, also when parser is given, i.e. default value is
 not passed to parser when used.
@@ -171,8 +180,14 @@ const result = parseEnvironmentVariables({
 });
 
 if (result.success) {
-  // Message: `OPTIONAL="OPTIONAL", PARSED=1234, REQUIRED="value"`
-  console.log(result.message);
+  console.table(result.envPrintable);
+  // ┌──────────┬──────────────┐
+  // │ (index)  │    Values    │
+  // ├──────────┼──────────────┤
+  // │ REQUIRED │  '"value"'   │
+  // │  PARSED  │    '1234'    │
+  // │ OPTIONAL │ '"OPTIONAL"' │
+  // └──────────┴──────────────┘
 
   // Type: { REQUIRED: string, PARSER: number, OPTIONAL: "OPTIONAL" | string }
   // Value: { REQUIRED: "value", PARSED: 1234, OPTIONAL: "OPTIONAL" }
@@ -198,8 +213,13 @@ const result = requireEnvironmentVariables("VAR_A", "VAR_B");
 if (result.success) {
   // Won't get there
 } else {
-  // Message: `VAR_A="value", VAR_B=<missing>`
-  console.error(result.message);
+  console.table(result.envPrintable);
+  //  ┌─────────┬─────────────┐
+  //  │ (index) │   Values    │
+  //  ├─────────┼─────────────┤
+  //  │  VAR_A  │  '"value"'  │
+  //  │  VAR_B  │ '<missing>' │
+  //  └─────────┴─────────────┘
 }
 ```
 
@@ -231,7 +251,11 @@ const result = parseEnvironmentVariables({
 if (result.success) {
   // Won't get there
 } else {
-  // Message: 'NOT_ACTUAL_NUMBER=<parser: "Not a number">'
-  console.error(result.message);
+  console.table(result.envPrintable);
+  // ┌───────────────────┬────────────────────────────┐
+  // │      (index)      │           Values           │
+  // ├───────────────────┼────────────────────────────┤
+  // │ NOT_ACTUAL_NUMBER │ '<parser: "Not a number">' │
+  // └───────────────────┴────────────────────────────┘
 }
 ```
