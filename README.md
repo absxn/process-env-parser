@@ -37,10 +37,10 @@ if (result.success) {
   // ┌──────────────┬──────────────────────────────────────┐
   // │   (index)    │                Values                │
   // ├──────────────┼──────────────────────────────────────┤
-  // │   API_KEY    │ '<parser: "Invalid URL: localhost">' │
-  // │ DATABASE_URL │               '"3000"'               │
-  // │ LISTEN_PORT  │             '<missing>'              │
-  // │ SERVICE_NAME │                'null'                │
+  // │   API_KEY    │             '<masked>'               │
+  // │ DATABASE_URL │ '<parser: "Invalid URL: localhost">' │
+  // │ LISTEN_PORT  │               '3000'                 │
+  // │ SERVICE_NAME │             '<missing>'              │
   // └──────────────┴──────────────────────────────────────┘
 
   throw new Error("Could not parse environment variables");
