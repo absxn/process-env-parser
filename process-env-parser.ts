@@ -81,7 +81,7 @@ type Result<Configuration extends EnvironmentVariableOptions> =
   | Success<Configuration>
   | Fail<Configuration>;
 
-const toPrintable = (variable: any): string => {
+function toPrintable(variable: any): string {
   const typeOf = typeof variable;
   if (["string", "number", "boolean"].includes(typeOf)) {
     return JSON.stringify(variable);
@@ -92,7 +92,7 @@ const toPrintable = (variable: any): string => {
   } else {
     return typeOf;
   }
-};
+}
 
 /**
  * Read environment variables using variable-specific configurations.
@@ -104,11 +104,9 @@ const toPrintable = (variable: any): string => {
  * @return Success object if all required variables were found and no given
  *         parser threw exceptions, otherwise returns Fail object.
  */
-export const parseEnvironmentVariables = <
+export function parseEnvironmentVariables<
   Configuration extends EnvironmentVariableOptions
->(
-  configuration: Configuration
-): Result<Configuration> => {
+>(configuration: Configuration): Result<Configuration> {
   const variables = Object.keys(configuration) as (keyof Configuration)[];
   const result = {} as EnvironmentVariables<Configuration>;
   const printableResult = {} as EnvironmentVariablesPrintable<Configuration>;
@@ -154,11 +152,11 @@ export const parseEnvironmentVariables = <
       envPrintable: printableResult
     };
   }
-};
+}
 
-const createDefaultConfiguration = <EnvironmentVariableName extends string>(
+function createDefaultConfiguration<EnvironmentVariableName extends string>(
   ...environmentVariables: EnvironmentVariableName[]
-) => {
+) {
   const result = {} as {
     [key in EnvironmentVariableName]: ParserOption<string>;
   };
@@ -169,7 +167,7 @@ const createDefaultConfiguration = <EnvironmentVariableName extends string>(
     result[environmentVariableName] = parser;
   }
   return result;
-};
+}
 
 /**
  * Read given environment variables and return their values as strings.
@@ -179,14 +177,12 @@ const createDefaultConfiguration = <EnvironmentVariableName extends string>(
  * @return Success object if all required variables were set, Fail object if
  *         any of them were missing
  */
-export const requireEnvironmentVariables = <
+export function requireEnvironmentVariables<
   EnvironmentVariableName extends string
->(
-  ...environmentVariables: EnvironmentVariableName[]
-) => {
+>(...environmentVariables: EnvironmentVariableName[]) {
   const configuration = createDefaultConfiguration<EnvironmentVariableName>(
     ...environmentVariables
   );
 
   return parseEnvironmentVariables(configuration);
-};
+}
