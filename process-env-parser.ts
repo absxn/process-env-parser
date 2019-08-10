@@ -156,18 +156,17 @@ export const parseEnvironmentVariables = <
   }
 };
 
-const createDefaultConfiguration = <
-  Configuration extends { [key: string]: { parser: Parser } },
-  EnvironmentVariableName extends keyof Configuration,
-  Parser extends ParserFunction<ParserReturnType>,
-  ParserReturnType extends string
->(
-  ...environmentVariables: (EnvironmentVariableName)[]
-): { [Key in EnvironmentVariableName]: { parser: Parser } } => {
-  const parser = ((value: string): string => value) as Parser;
-  const result = {} as { [Key in EnvironmentVariableName]: { parser: Parser } };
-  for (const EnvironmentVariableName of environmentVariables) {
-    result[EnvironmentVariableName] = { parser };
+const createDefaultConfiguration = <EnvironmentVariableName extends string>(
+  ...environmentVariables: EnvironmentVariableName[]
+) => {
+  const result = {} as {
+    [key in EnvironmentVariableName]: ParserOption<string>;
+  };
+  for (const environmentVariableName of environmentVariables) {
+    const parser: ParserOption<string> = {
+      parser: (value: string): string => value
+    };
+    result[environmentVariableName] = parser;
   }
   return result;
 };
@@ -181,19 +180,13 @@ const createDefaultConfiguration = <
  *         any of them were missing
  */
 export const requireEnvironmentVariables = <
-  Configuration extends { [key: string]: { parser: Parser } },
-  EnvironmentVariableName extends string,
-  Parser extends ParserFunction<ParserReturnType>,
-  ParserReturnType extends string
+  EnvironmentVariableName extends string
 >(
-  ...environmentVariables: (EnvironmentVariableName)[]
+  ...environmentVariables: EnvironmentVariableName[]
 ) => {
-  const configuration = createDefaultConfiguration<
-    Configuration,
-    EnvironmentVariableName,
-    Parser,
-    ParserReturnType
-  >(...environmentVariables);
+  const configuration = createDefaultConfiguration<EnvironmentVariableName>(
+    ...environmentVariables
+  );
 
   return parseEnvironmentVariables(configuration);
 };
