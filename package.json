@@ -1,9 +1,27 @@
 {
   "name": "@absxn/process-env-parser",
   "version": "0.0.0",
-  "description": "",
+  "description": "Straightforward and safe environment variable parser for bootstrapping node applications",
+  "keywords": [
+    "env",
+    "variable",
+    "environment",
+    "parser",
+    "typescript",
+    "node",
+    "process"
+  ],
+  "homepage": "https://github.com/absxn/process-env-parser",
+  "files": [
+    "dist/process-env-parser.d.ts",
+    "dist/process-env-parser.js"
+  ],
   "main": "dist/process-env-parser.js",
   "types": "dist/process-env-parser.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:absxn/process-env-parser.git"
+  },
   "scripts": {
     "build": "tsc -p .",
     "test": "jest --coverage"
