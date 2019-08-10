@@ -1,35 +1,46 @@
 import { env } from "process";
 
-type Default = { default: any };
-type NoDefault = { default?: any };
-type MaybeMask = { mask?: boolean };
-type MaybeDefault = Default | NoDefault;
-type ParserFn<P> = (x: string) => P;
-type Parser<P> = { parser: ParserFn<P> };
-type NoParser = { parser?: ParserFn<string> };
-type MaybeParser<P> = Parser<P> | NoParser;
-type ReadEnvConfig = MaybeParser<any> & MaybeDefault & MaybeMask;
-type CheckOptional<T, R> = T extends { default: any }
-  ? T extends { default: infer D }
-    ? D | R
-    : R
-  : R;
-type Result<T extends Mapping> = {
-  [k in keyof T]: CheckOptional<
-    T[k],
-    T[k] extends Parser<any> ? ReturnType<T[k]["parser"]> : string
+type ParserFunction<ParserReturnType> = (
+  environmentVariableValue: string
+) => ParserReturnType;
+
+type ParserOption<ParserReturnType> = {
+  parser: ParserFunction<ParserReturnType>;
+};
+
+type ParserOptionDefault = { parser?: ParserFunction<string> };
+
+type DefaultValueType<Options, ParserReturnType> = Options extends {
+  default: any;
+}
+  ? Options extends { default: infer DefaultType }
+    ? DefaultType | ParserReturnType
+    : ParserReturnType
+  : ParserReturnType;
+
+type EnvironmentVariables<Configuration extends EnvironmentVariableOptions> = {
+  [EnvironmentVariableName in keyof Configuration]: DefaultValueType<
+    Configuration[EnvironmentVariableName],
+    Configuration[EnvironmentVariableName] extends ParserOption<any>
+      ? ReturnType<Configuration[EnvironmentVariableName]["parser"]>
+      : string
   >;
 };
 
-type PrintableResult<T extends Mapping> = {
-  [k in keyof T]: string;
+type EnvironmentVariablesPrintable<
+  Configuration extends EnvironmentVariableOptions
+> = {
+  [EnvironmentVariableName in keyof Configuration]: string;
 };
 
-type Mapping = {
-  [key: string]: ReadEnvConfig;
+type EnvironmentVariableOptions = {
+  [key: string]: (ParserOption<any> | ParserOptionDefault) & {
+    default?: any;
+    mask?: boolean;
+  };
 };
 
-interface Status<T extends Mapping> {
+interface Status<Configuration extends EnvironmentVariableOptions> {
   /**
    * Use this field to check whether to handle Success or Fail type
    */
@@ -39,34 +50,38 @@ interface Status<T extends Mapping> {
    * human-readable, loggable, values for parser exceptions, missing values,
    * and actual values.
    */
-  readonly envPrintable: Readonly<PrintableResult<T>>;
+  readonly envPrintable: Readonly<EnvironmentVariablesPrintable<Configuration>>;
 }
 
 /**
  * If all required variables were found and parsed correctly, this object is
  * returned.
  */
-interface Success<T extends Mapping> extends Status<T> {
+interface Success<Configuration extends EnvironmentVariableOptions>
+  extends Status<Configuration> {
   readonly success: true;
   /**
    * Object with keys representing the environment variable names, and values
    * representing either the variable values as strings, or as the return value
    * of their respective parser function.
    */
-  readonly env: Readonly<Result<T>>;
+  readonly env: Readonly<EnvironmentVariables<Configuration>>;
 }
 
 /**
  * If any required variable was missing, or any parser threw an exception, this
  * object is returned.
  */
-interface Fail<T extends Mapping> extends Status<T> {
+interface Fail<Configuration extends EnvironmentVariableOptions>
+  extends Status<Configuration> {
   readonly success: false;
 }
 
-type ParserResult<T extends Mapping> = Success<T> | Fail<T>;
+type Result<Configuration extends EnvironmentVariableOptions> =
+  | Success<Configuration>
+  | Fail<Configuration>;
 
-const variableToString = (variable: any): string => {
+const toPrintable = (variable: any): string => {
   const typeOf = typeof variable;
   if (["string", "number", "boolean"].includes(typeOf)) {
     return JSON.stringify(variable);
@@ -82,24 +97,26 @@ const variableToString = (variable: any): string => {
 /**
  * Read environment variables using variable-specific configurations.
  *
- * @param variableConfigs Object with keys matching the expected environment
- *                        variables, values describing the configuration how
- *                        that variable is handled
+ * @param configuration Object with keys matching the expected environment
+ *                      variables, values describing the configuration how
+ *                      that variable is handled
  *
  * @return Success object if all required variables were found and no given
  *         parser threw exceptions, otherwise returns Fail object.
  */
-export const parseEnvironmentVariables = <T extends Mapping>(
-  variableConfigs: T
-): ParserResult<T> => {
-  const variables = Object.keys(variableConfigs) as (keyof T)[];
-  const result = {} as Result<T>;
-  const printableResult = {} as PrintableResult<T>;
+export const parseEnvironmentVariables = <
+  Configuration extends EnvironmentVariableOptions
+>(
+  configuration: Configuration
+): Result<Configuration> => {
+  const variables = Object.keys(configuration) as (keyof Configuration)[];
+  const result = {} as EnvironmentVariables<Configuration>;
+  const printableResult = {} as EnvironmentVariablesPrintable<Configuration>;
   let fail = false;
 
   for (const variable of variables) {
     const value = env[variable as string];
-    const config = variableConfigs[variable];
+    const config = configuration[variable];
     if (value !== undefined) {
       try {
         result[variable] = config.parser ? config.parser(value) : value;
@@ -116,7 +133,7 @@ export const parseEnvironmentVariables = <T extends Mapping>(
       if ((config as {}).hasOwnProperty("default")) {
         result[variable] = config.default;
         printableResult[variable] = `${
-          config.mask ? "<masked>" : variableToString(result[variable])
+          config.mask ? "<masked>" : toPrintable(result[variable])
         }`;
       } else {
         printableResult[variable] = "<missing>";
@@ -139,18 +156,18 @@ export const parseEnvironmentVariables = <T extends Mapping>(
   }
 };
 
-const mkConf = <
-  T extends { [key: string]: { parser: P } },
-  K extends keyof T,
-  P extends ParserFn<R>,
-  R extends string
+const createDefaultConfiguration = <
+  Configuration extends { [key: string]: { parser: Parser } },
+  EnvironmentVariableName extends keyof Configuration,
+  Parser extends ParserFunction<ParserReturnType>,
+  ParserReturnType extends string
 >(
-  ...variables: (K)[]
-): { [Key in K]: { parser: P } } => {
-  const parser = ((value: string): string => value) as P;
-  const result = {} as { [Key in K]: { parser: P } };
-  for (const v of variables) {
-    result[v] = { parser };
+  ...environmentVariables: (EnvironmentVariableName)[]
+): { [Key in EnvironmentVariableName]: { parser: Parser } } => {
+  const parser = ((value: string): string => value) as Parser;
+  const result = {} as { [Key in EnvironmentVariableName]: { parser: Parser } };
+  for (const EnvironmentVariableName of environmentVariables) {
+    result[EnvironmentVariableName] = { parser };
   }
   return result;
 };
@@ -158,20 +175,25 @@ const mkConf = <
 /**
  * Read given environment variables and return their values as strings.
  *
- * @param keys Names of the required environment variables
+ * @param environmentVariables Names of the required environment variables
  *
  * @return Success object if all required variables were set, Fail object if
  *         any of them were missing
  */
 export const requireEnvironmentVariables = <
-  T extends { [key: string]: { parser: P } },
-  K extends string,
-  P extends ParserFn<R>,
-  R extends string
+  Configuration extends { [key: string]: { parser: Parser } },
+  EnvironmentVariableName extends string,
+  Parser extends ParserFunction<ParserReturnType>,
+  ParserReturnType extends string
 >(
-  ...keys: (K)[]
+  ...environmentVariables: (EnvironmentVariableName)[]
 ) => {
-  const confs = mkConf<T, K, P, R>(...keys);
+  const configuration = createDefaultConfiguration<
+    Configuration,
+    EnvironmentVariableName,
+    Parser,
+    ParserReturnType
+  >(...environmentVariables);
 
-  return parseEnvironmentVariables(confs);
+  return parseEnvironmentVariables(configuration);
 };
