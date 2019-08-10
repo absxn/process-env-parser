@@ -1,4 +1,5 @@
 import {
+  Formatter,
   parseEnvironmentVariables,
   requireEnvironmentVariables
 } from "../process-env-parser";
@@ -239,6 +240,19 @@ describe("Simple environment variable parser", () => {
       success: false,
       envPrintable: { A: `"A"`, MISSING: "<missing>" }
     });
+  });
+});
+
+describe("Formatter", () => {
+  it("supports turning result into a one-liner", () => {
+    expect(
+      Formatter.oneliner({
+        envPrintable: {
+          A: "value",
+          B: "1234"
+        }
+      })
+    ).toEqual("A=value, B=1234");
   });
 });
 

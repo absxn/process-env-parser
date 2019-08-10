@@ -186,3 +186,17 @@ export function requireEnvironmentVariables<
 
   return parseEnvironmentVariables(configuration);
 }
+
+function oneliner<Configuration extends EnvironmentVariableOptions>(
+  result: Pick<Result<Configuration>, "envPrintable">
+): string {
+  return Object.entries(result.envPrintable)
+    .map(
+      ([variableName, printableValue]) => `${variableName}=${printableValue}`
+    )
+    .join(", ");
+}
+
+export const Formatter = {
+  oneliner
+};
