@@ -54,6 +54,8 @@ if (result.success) {
   - [Success: Optional and parsed variables](#success-optional-and-parsed-variables)
   - [Fail: Variable missing](#fail-variable-missing)
   - [Fail: Parser throwing](#fail-parser-throwing)
+- [Formatter](#formatter)
+  - [Oneliner](#oneliner)
 
 ## Rationale
 
@@ -302,4 +304,35 @@ if (result.success) {
   // │ NOT_ACTUAL_NUMBER │ '<parser: "Not a number">' │
   // └───────────────────┴────────────────────────────┘
 }
+```
+
+## Formatter
+
+The library contains additional helper functions for printing out the parser
+results. These can be useful for storing the startup configuration into logs
+or printing out startup failure reasons.
+
+Importing `Formatter` from the package:
+
+```typescript
+import { Formatter } from "@absxn/process-env-parser";
+```
+
+### Oneliner
+
+Using the data from the first example:
+
+```typescript
+const result = parseEnvironmentVariables({
+  API_KEY: { mask: true, default: null },
+  DATABASE_URL: { parser: s => new URL(s).toString() },
+  LISTEN_PORT: { parser: parseInt, default: 3000 },
+  SERVICE_NAME: {}
+});
+
+console.log(Formatter.oneliner(result))
+// if (result.success === true):
+// > API_KEY=<masked>, DATABASE_URL="mysql://localhost:3306/app", LISTEN_PORT=8080, SERVICE_NAME="app"
+// else:
+// > API_KEY=<masked>, DATABASE_URL=<parser: "Invalid URL: localhost">, LISTEN_PORT=3000, SERVICE_NAME=<missing>
 ```
