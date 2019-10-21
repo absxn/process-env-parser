@@ -363,6 +363,19 @@ $ node app
 getConfig() -> null
 ```
 
+If the object is returned, the return type has nullability removed from each
+value:
+
+```typescript
+// Type before: { a: string | null, b: number | undefined }
+const nullableValues = {
+  a: Math.random() > 0.5 ? "X" : null,
+  b: Math.random() > 0.5 ? 1 : undefined
+};
+// Type after: {a: string, b: number} | null
+const nonNullableValues = Combine.nonNullable(nullableTypes);
+```
+
 ## Formatter
 
 The library contains additional helper functions for printing out the parser
