@@ -1,6 +1,6 @@
 {
   "name": "@absxn/process-env-parser",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Straightforward and safe environment variable parser for bootstrapping node applications",
   "keywords": [
     "env",
