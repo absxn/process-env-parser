@@ -54,6 +54,8 @@ if (result.success) {
   - [Success: Optional and parsed variables](#success-optional-and-parsed-variables)
   - [Fail: Variable missing](#fail-variable-missing)
   - [Fail: Parser throwing](#fail-parser-throwing)
+- [Combine](#combine)
+  - [Non-nullable](#non-nullable)
 - [Formatter](#formatter)
   - [Oneliner](#oneliner)
 
@@ -304,6 +306,57 @@ if (result.success) {
   // │ NOT_ACTUAL_NUMBER │ '<parser: "Not a number">' │
   // └───────────────────┴────────────────────────────┘
 }
+```
+
+## Combine
+
+Helpers for manipulating parser results.
+
+```typescript
+import { Combine } from "@absxn/process-env-parser";
+```
+
+### Non-nullable
+
+If you have a subset environment variables that depend on each other, i.e. you
+either need all of them, or none of them, this function helps to ensure that.
+
+Lets assume we have this setup:
+
+```typescript
+function getConfig() {
+  // For parsing purposes, both USERNAME and PASSWORD are optional...
+  const result = parseEnvironmentVariables({
+    DATABASE: {},
+    USERNAME: { default: null },
+    PASSWORD: { default: null }
+  });
+
+  if (!result.success) {
+    return null;
+  }
+
+  const { DATABASE, USERNAME, PASSWORD } = result.env;
+
+  return {
+    // ... but for actual authentication, you need both
+    auth: Combine.nonNullable({ USERNAME, PASSWORD }),
+    db: DATABASE
+  };
+}
+```
+
+We would get the following results with given startup parameters:
+
+```
+$ DATABASE=db USERNAME=user PASSWORD=pass node app
+getConfig() -> { auth: { USERNAME: "user", PASSWORD: "pass" }: db: "db" }
+
+$ DATABASE=db node app
+getConfig() -> { auth: null, db: "db" }
+
+$ DATABASE=db USERNAME=user node app
+getConfig() -> new Error("Mix of non-nullable (USERNAME) and nullable (PASSWORD) values")
 ```
 
 ## Formatter
