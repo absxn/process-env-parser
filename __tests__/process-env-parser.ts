@@ -328,3 +328,15 @@ if (typeTest2.success) {
   s1;
   s2;
 }
+
+const environmentVariableMapping: {
+  a: number | null;
+  b: string | undefined;
+} = {
+  a: Math.random() ? 1 : null,
+  b: Math.random() ? "b" : undefined
+};
+const nonNullableResult: { a: number; b: string } | null = Combine.nonNullable(
+  environmentVariableMapping
+);
+nonNullableResult;
