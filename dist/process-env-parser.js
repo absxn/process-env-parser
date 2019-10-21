@@ -115,7 +115,46 @@ function oneliner(result) {
     })
         .join(", ");
 }
+/**
+ * Helper to ensure that all values in a mapping are either set or not.
+ *
+ * @param environmentVariableMapping Mapping of {VARIABLE_NAME: any, ...}, i.e.
+ *                                   the success result (.env) form the parser
+ *                                   functions.
+ *
+ * @return If all values are non-nullable (not `null` and not `undefined`, as
+ *         per TypeScript's NonNullable<T>), return input object as is. If all
+ *         are nullable, return null. If there is a mix of nullable and non-
+ *         nullable values, throws an error.
+ */
+function nonNullable(environmentVariableMapping) {
+    // tslint:disable-next-line:no-let
+    var truthy = false;
+    var output = {};
+    var truthyKeys = [];
+    var falsyKeys = [];
+    var keys = Object.keys(environmentVariableMapping);
+    for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
+        var key = keys_1[_i];
+        var value = environmentVariableMapping[key];
+        if (value !== undefined && value !== null) {
+            truthy = true;
+            truthyKeys.push(key);
+            output[key] = value;
+        }
+        else if (truthy) {
+            falsyKeys.push(key);
+        }
+    }
+    if (truthyKeys.length > 0 && falsyKeys.length > 0) {
+        throw new Error("Mix of non-nullable (" + truthyKeys.join(", ") + ") and nullable (" + falsyKeys.join(", ") + ") values");
+    }
+    return truthy ? output : null;
+}
 exports.Formatter = {
     oneliner: oneliner
+};
+exports.Combine = {
+    nonNullable: nonNullable
 };
 //# sourceMappingURL=process-env-parser.js.map
