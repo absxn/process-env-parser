@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "test": "jest --coverage"
+    "test": "tsc -p . -p __tests__ --noEmit && jest --coverage"
   },
   "author": "absxn.com",
   "license": "ISC",
