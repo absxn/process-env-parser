@@ -318,8 +318,9 @@ import { Combine } from "@absxn/process-env-parser";
 
 ### Non-nullable
 
-If you have a subset environment variables that depend on each other, i.e. you
-either need all of them, or none of them, this function helps to ensure that.
+If you have a subset of environment variables that depend on each other, i.e.
+you either need all of them, or none of them, this function helps to ensure
+that.
 
 Lets assume we have this setup:
 
@@ -350,13 +351,16 @@ We would get the following results with given startup parameters:
 
 ```
 $ DATABASE=db USERNAME=user PASSWORD=pass node app
-getConfig() -> { auth: { USERNAME: "user", PASSWORD: "pass" }: db: "db" }
+getConfig() -> { auth: { USERNAME: "user", PASSWORD: "pass" }, db: "db" }
 
 $ DATABASE=db node app
 getConfig() -> { auth: null, db: "db" }
 
 $ DATABASE=db USERNAME=user node app
 getConfig() -> new Error("Mix of non-nullable (USERNAME) and nullable (PASSWORD) values")
+
+$ node app
+getConfig() -> null
 ```
 
 ## Formatter
