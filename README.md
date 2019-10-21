@@ -400,7 +400,7 @@ const result = parseEnvironmentVariables({
   SERVICE_NAME: {}
 });
 
-console.log(Formatter.oneliner(result))
+console.log(Formatter.oneliner(result));
 // if (result.success === true):
 // > API_KEY=<masked>, DATABASE_URL="mysql://localhost:3306/app", LISTEN_PORT=8080, SERVICE_NAME="app"
 // else:
