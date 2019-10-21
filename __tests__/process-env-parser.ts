@@ -1,4 +1,5 @@
 import {
+  Combine,
   Formatter,
   parseEnvironmentVariables,
   requireEnvironmentVariables
@@ -253,6 +254,48 @@ describe("Formatter", () => {
         }
       })
     ).toEqual("A=value, B=1234");
+  });
+});
+
+describe("Combine nonNullable()", () => {
+  it("returns original result if all values are non-nullable", () => {
+    const testValue = {
+      A: "a",
+      B: "b",
+      C: "c"
+    };
+    expect(Combine.nonNullable(testValue)).toEqual(testValue);
+  });
+
+  it("treats false, zero, [], and {}, as non-nullable", () => {
+    const testValue = {
+      A: "a",
+      B: 0,
+      C: false,
+      D: [],
+      E: {}
+    };
+    expect(Combine.nonNullable(testValue)).toEqual(testValue);
+  });
+
+  it("returns null if all are nullable", () => {
+    expect(
+      Combine.nonNullable({
+        A: undefined,
+        B: null,
+        C: null
+      })
+    ).toEqual(null);
+  });
+
+  it("throws if there is a mix of nonNullable and falsy values", () => {
+    expect(() =>
+      Combine.nonNullable({
+        A: "a",
+        B: null,
+        C: "c"
+      })
+    ).toThrow(new Error("Mix of non-nullable (A, C) and nullable (B) values"));
   });
 });
 

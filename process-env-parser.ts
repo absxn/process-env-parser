@@ -197,6 +197,51 @@ function oneliner<Configuration extends EnvironmentVariableOptions>(
     .join(", ");
 }
 
+/**
+ * Helper to ensure that all values in a mapping are either set or not.
+ *
+ * @param environmentVariableMapping Mapping of {VARIABLE_NAME: any, ...}, i.e.
+ *                                   the success result (.env) form the parser
+ *                                   functions.
+ *
+ * @return If all values are non-nullable (not `null` and not `undefined`, as
+ *         per TypeScript's NonNullable<T>), return input object as is. If all
+ *         are nullable, return null. If there is a mix of nullable and non-
+ *         nullable values, throws an error.
+ */
+function nonNullable<T extends { [k in Key]: T[k] }, Key extends keyof T>(
+  environmentVariableMapping: T
+): { [k in Key]: NonNullable<T[k]> } | null {
+  // tslint:disable-next-line:no-let
+  let truthy = false;
+  const output = {} as { [k in Key]: NonNullable<T[k]> };
+  const truthyKeys = [];
+  const falsyKeys = [];
+  const keys = Object.keys(environmentVariableMapping) as Key[];
+  for (const key of keys) {
+    const value = environmentVariableMapping[key];
+    if (value !== undefined && value !== null) {
+      truthy = true;
+      truthyKeys.push(key);
+      output[key] = value as NonNullable<typeof value>;
+    } else if (truthy) {
+      falsyKeys.push(key);
+    }
+  }
+  if (truthyKeys.length > 0 && falsyKeys.length > 0) {
+    throw new Error(
+      `Mix of non-nullable (${truthyKeys.join(
+        ", "
+      )}) and nullable (${falsyKeys.join(", ")}) values`
+    );
+  }
+  return truthy ? output : null;
+}
+
 export const Formatter = {
   oneliner
+};
+
+export const Combine = {
+  nonNullable
 };
