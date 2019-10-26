@@ -322,6 +322,9 @@ If you have a subset of environment variables that depend on each other, i.e.
 you either need all of them, or none of them, this function helps to ensure
 that.
 
+"Nullable" is here defined by TypeScript's `NonNullable<T>`, that is, `null` or
+`undefined`.
+
 Lets assume we have this setup:
 
 ```typescript
