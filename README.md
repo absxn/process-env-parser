@@ -194,6 +194,7 @@ interface Config {
 To succeed:
 
 - All varibales with no `default` given must exist in the environment
+  - Empty string `""` is considered as non-existing!
 - No `parser` may throw
   - Parser exceptions turn result into `Fail` and the exception message is
     captured in the `envPrintable` fields. See examples below.
@@ -250,13 +251,16 @@ if (result.success) {
 #### Process startup
 
 ```sh
-$ VAR_A=value node app
+$ VAR_A=value VAR_B= node app
 ```
+
+*NOTE:* Empty string, `VAR_B` in this case, is also considered as missing! I.e.
+`process.env.VAR_B` does exist, but the parser considers `""` equal to not set.
 
 #### Code
 
 ```typescript
-const result = requireEnvironmentVariables("VAR_A", "VAR_B");
+const result = requireEnvironmentVariables("VAR_A", "VAR_B", "VAR_C");
 
 if (result.success) {
   // Won't get there
@@ -267,6 +271,7 @@ if (result.success) {
   //  ├─────────┼─────────────┤
   //  │  VAR_A  │  '"value"'  │
   //  │  VAR_B  │ '<missing>' │
+  //  │  VAR_C  │ '<missing>' │
   //  └─────────┴─────────────┘
 }
 ```
