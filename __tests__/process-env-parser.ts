@@ -17,7 +17,7 @@ describe("Environment variable parser", () => {
   });
 
   it("returns missing variables", () => {
-    process.env.A = "A";
+    process.env.A = "";
     const result = parseEnvironmentVariables({
       MISSING: {},
       MISSING_TOO: {},
@@ -26,7 +26,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: false,
       envPrintable: {
-        A: `"A"`,
+        A: "<missing>",
         MISSING: "<missing>",
         MISSING_TOO: "<missing>"
       }
@@ -44,9 +44,9 @@ describe("Environment variable parser", () => {
   });
 
   it("returns default value for missing optional variables", () => {
-    process.env.A = "A";
+    process.env.A = "";
     const result = parseEnvironmentVariables({
-      A: {},
+      A: { default: "A" },
       OPTIONAL: { default: "OPTIONAL" }
     });
     expect(result).toEqual({
