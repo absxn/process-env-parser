@@ -57,7 +57,7 @@ if (result.success) {
 - [Combine](#combine)
   - [Non-nullable](#non-nullable)
 - [Formatter](#formatter)
-  - [`console.table()`](#console-table)
+  - [`console.table()`](#consoletable)
   - [Oneliner](#oneliner)
 
 ## Rationale
