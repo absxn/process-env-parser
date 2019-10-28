@@ -33,6 +33,31 @@ describe("Environment variable parser", () => {
     });
   });
 
+  it("handles pure whitespace string as not set", () => {
+    process.env.BLANK = "   ";
+    const result = parseEnvironmentVariables({
+      BLANK: {}
+    });
+    expect(result).toEqual({
+      success: false,
+      envPrintable: {
+        BLANK: "<missing>"
+      }
+    });
+  });
+
+  it("leaves surrounding whitespace intact", () => {
+    process.env.TRIMMABLE = " A ";
+    const result = parseEnvironmentVariables({
+      TRIMMABLE: {}
+    });
+    expect(result).toEqual({
+      success: true,
+      env: { TRIMMABLE: " A " },
+      envPrintable: { TRIMMABLE: `" A "` }
+    });
+  });
+
   it("can use custom parser function", () => {
     process.env.A = "1234";
     const result = parseEnvironmentVariables({ A: { parser: parseInt } });

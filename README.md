@@ -251,16 +251,21 @@ if (result.success) {
 #### Process startup
 
 ```sh
-$ VAR_A=value VAR_B= node app
+$ VAR_A=value VAR_B= VAR_C="${X} ${Y} ${Z}" node app
 ```
 
-*NOTE:* Empty string, `VAR_B` in this case, is also considered as missing! I.e.
-`process.env.VAR_B` does exist, but the parser considers `""` equal to not set.
+WARNING – Special cases for "meaningless" strings:
+- Empty string: `VAR_B` is also considered as missing. I.e. `process.env.VAR_B`
+  does exist, but the parser considers `""` equal to not set.
+- Blank string: `VAR_C` is also considered not set. In this case, `X`, `Y`, `Z`
+  are all `""`, so the resulting value of `VAR_C` is two spaces,
+  `"  "`. If value is surrounded by spaces, e.g. `" A "`, the spaces are
+  preserved as is through the parser.
 
 #### Code
 
 ```typescript
-const result = requireEnvironmentVariables("VAR_A", "VAR_B", "VAR_C");
+const result = requireEnvironmentVariables("VAR_A", "VAR_B", "VAR_C", "VAR_D");
 
 if (result.success) {
   // Won't get there
@@ -272,6 +277,7 @@ if (result.success) {
   //  │  VAR_A  │  '"value"'  │
   //  │  VAR_B  │ '<missing>' │
   //  │  VAR_C  │ '<missing>' │
+  //  │  VAR_D  │ '<missing>' │
   //  └─────────┴─────────────┘
 }
 ```

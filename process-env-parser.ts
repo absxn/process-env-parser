@@ -115,7 +115,7 @@ export function parseEnvironmentVariables<
   for (const variable of variables) {
     const value = env[variable as string];
     const config = configuration[variable];
-    if (value !== undefined && value !== "") {
+    if (value !== undefined && value.trim() !== "") {
       try {
         result[variable] = config.parser ? config.parser(value) : value;
         printableResult[variable] = config.mask
