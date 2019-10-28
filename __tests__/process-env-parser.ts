@@ -17,16 +17,16 @@ describe("Environment variable parser", () => {
   });
 
   it("returns missing variables", () => {
-    process.env.A = "";
+    process.env.EMPTY_STRING = "";
     const result = parseEnvironmentVariables({
       MISSING: {},
       MISSING_TOO: {},
-      A: {}
+      EMPTY_STRING: {}
     });
     expect(result).toEqual({
       success: false,
       envPrintable: {
-        A: "<missing>",
+        EMPTY_STRING: "<missing>",
         MISSING: "<missing>",
         MISSING_TOO: "<missing>"
       }
@@ -44,15 +44,15 @@ describe("Environment variable parser", () => {
   });
 
   it("returns default value for missing optional variables", () => {
-    process.env.A = "";
+    process.env.EMPTY_STRING = "";
     const result = parseEnvironmentVariables({
-      A: { default: "A" },
+      EMPTY_STRING: { default: "EMPTY_STRING" },
       OPTIONAL: { default: "OPTIONAL" }
     });
     expect(result).toEqual({
       success: true,
-      env: { A: "A", OPTIONAL: "OPTIONAL" },
-      envPrintable: { A: `"A"`, OPTIONAL: `"OPTIONAL"` }
+      env: { EMPTY_STRING: "EMPTY_STRING", OPTIONAL: "OPTIONAL" },
+      envPrintable: { EMPTY_STRING: `"EMPTY_STRING"`, OPTIONAL: `"OPTIONAL"` }
     });
   });
 
