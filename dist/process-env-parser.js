@@ -35,7 +35,7 @@ function parseEnvironmentVariables(configuration) {
         var variable = variables_1[_i];
         var value = process_1.env[variable];
         var config = configuration[variable];
-        if (value !== undefined) {
+        if (value !== undefined && value.trim() !== "") {
             try {
                 result[variable] = config.parser ? config.parser(value) : value;
                 printableResult[variable] = config.mask
