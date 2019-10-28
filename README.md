@@ -57,6 +57,7 @@ if (result.success) {
 - [Combine](#combine)
   - [Non-nullable](#non-nullable)
 - [Formatter](#formatter)
+  - [`console.table()`](#console-table)
   - [Oneliner](#oneliner)
 
 ## Rationale
@@ -400,6 +401,23 @@ Importing `Formatter` from the package:
 
 ```typescript
 import { Formatter } from "@absxn/process-env-parser";
+```
+
+### `console.table()`
+
+As a built-in, `console.table()` is the easiest way to get a readable dump from
+the parser results.
+
+```typescript
+const result = requireEnvironmentVariables("VARIABLE"/*, ...*/);
+
+console.table(result.envPrintable);
+// ┌──────────┬─────────┐
+// │ (index)  │ Values  │
+// ├──────────┼─────────┤
+// │ VARIABLE │ 'value' │
+// │   ...    │   ...   │
+// └──────────┴─────────┘
 ```
 
 ### Oneliner
