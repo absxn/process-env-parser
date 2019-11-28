@@ -52,7 +52,7 @@ function parseEnvironmentVariables(configuration) {
             // need to check for existence of property in runtime
             if (config.hasOwnProperty("default")) {
                 result[variable] = config.default;
-                printableResult[variable] = "" + (config.mask ? "<masked>" : toPrintable(result[variable]));
+                printableResult[variable] = (config.mask ? "<masked>" : toPrintable(result[variable])) + " (default)";
             }
             else {
                 printableResult[variable] = "<missing>";
@@ -107,13 +107,19 @@ function requireEnvironmentVariables() {
     return parseEnvironmentVariables(configuration);
 }
 exports.requireEnvironmentVariables = requireEnvironmentVariables;
-function oneliner(result) {
+function keyValueFormatter(result, assignmentSeparator, entrySeparator) {
     return Object.entries(result.envPrintable)
         .map(function (_a) {
         var variableName = _a[0], printableValue = _a[1];
-        return variableName + "=" + printableValue;
+        return "" + variableName + assignmentSeparator + printableValue;
     })
-        .join(", ");
+        .join(entrySeparator);
+}
+function oneliner(result) {
+    return keyValueFormatter(result, "=", ", ");
+}
+function multiLine(result) {
+    return keyValueFormatter(result, " = ", "\n");
 }
 /**
  * Helper to ensure that all values in a mapping are either set or not.
@@ -152,7 +158,8 @@ function nonNullable(environmentVariableMapping) {
     return truthy ? output : null;
 }
 exports.Formatter = {
-    oneliner: oneliner
+    oneliner: oneliner,
+    multiLine: multiLine
 };
 exports.Combine = {
     nonNullable: nonNullable

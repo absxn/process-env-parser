@@ -76,6 +76,7 @@ export declare function parseEnvironmentVariables<Configuration extends Environm
  */
 export declare function requireEnvironmentVariables<EnvironmentVariableName extends string>(...environmentVariables: EnvironmentVariableName[]): Result<{ [key in EnvironmentVariableName]: ParserOption<string>; }>;
 declare function oneliner<Configuration extends EnvironmentVariableOptions>(result: Pick<Result<Configuration>, "envPrintable">): string;
+declare function multiLine<Configuration extends EnvironmentVariableOptions>(result: Pick<Result<Configuration>, "envPrintable">): string;
 /**
  * Helper to ensure that all values in a mapping are either set or not.
  *
@@ -95,6 +96,7 @@ declare function nonNullable<T extends {
 } | null;
 export declare const Formatter: {
     oneliner: typeof oneliner;
+    multiLine: typeof multiLine;
 };
 export declare const Combine: {
     nonNullable: typeof nonNullable;
