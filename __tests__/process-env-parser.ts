@@ -283,6 +283,18 @@ describe("Formatter", () => {
       })
     ).toEqual("A=value, B=1234");
   });
+
+  it("supports turning result into a multi-liner", () => {
+    expect(
+      Formatter.multiLine({
+        envPrintable: {
+          A: "value",
+          B: "1234"
+        }
+      })
+    ).toEqual(`A = value
+B = 1234`);
+  });
 });
 
 describe("Combine nonNullable()", () => {

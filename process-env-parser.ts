@@ -187,14 +187,29 @@ export function requireEnvironmentVariables<
   return parseEnvironmentVariables(configuration);
 }
 
-function oneliner<Configuration extends EnvironmentVariableOptions>(
-  result: Pick<Result<Configuration>, "envPrintable">
+function keyValueFormatter<Configuration extends EnvironmentVariableOptions>(
+  result: Pick<Result<Configuration>, "envPrintable">,
+  assignmentSeparator: string,
+  entrySeparator: string
 ): string {
   return Object.entries(result.envPrintable)
     .map(
-      ([variableName, printableValue]) => `${variableName}=${printableValue}`
+      ([variableName, printableValue]) =>
+        `${variableName}${assignmentSeparator}${printableValue}`
     )
-    .join(", ");
+    .join(entrySeparator);
+}
+
+function oneliner<Configuration extends EnvironmentVariableOptions>(
+  result: Pick<Result<Configuration>, "envPrintable">
+): string {
+  return keyValueFormatter(result, "=", ", ");
+}
+
+function multiLine<Configuration extends EnvironmentVariableOptions>(
+  result: Pick<Result<Configuration>, "envPrintable">
+): string {
+  return keyValueFormatter(result, " = ", "\n");
 }
 
 /**
@@ -239,7 +254,8 @@ function nonNullable<T extends { [k in Key]: T[k] }, Key extends keyof T>(
 }
 
 export const Formatter = {
-  oneliner
+  oneliner,
+  multiLine
 };
 
 export const Combine = {
