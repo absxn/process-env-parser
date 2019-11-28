@@ -178,7 +178,8 @@ interface Config {
   [variableName: string]: {
     // If variable is not found, use this as its value. If `default` not
     // given, variable is mandatory, in which case, a missing variable leads
-    // to Fail being returned.
+    // to Fail being returned. If default value was used, envPrintable will
+    // have " (default)" appended to the printable value.
     default?: any;
     // When variable is read, its value is passed first to the parser
     // function. Return value of the parser is used as the variable value in
@@ -232,13 +233,13 @@ const result = parseEnvironmentVariables({
 
 if (result.success) {
   console.table(result.envPrintable);
-  // ┌──────────┬──────────────┐
-  // │ (index)  │    Values    │
-  // ├──────────┼──────────────┤
-  // │ REQUIRED │  '"value"'   │
-  // │  PARSED  │    '1234'    │
-  // │ OPTIONAL │ '"OPTIONAL"' │
-  // └──────────┴──────────────┘
+  // ┌──────────┬────────────────────────┐
+  // │ (index)  │         Values         │
+  // ├──────────┼────────────────────────┤
+  // │ REQUIRED │       '"value"'        │
+  // │  PARSED  │         '1234'         │
+  // │ OPTIONAL │ '"OPTIONAL" (default)' │
+  // └──────────┴────────────────────────┘
 
   // Type: { REQUIRED: string, PARSER: number, OPTIONAL: "OPTIONAL" | string }
   // Value: { REQUIRED: "value", PARSED: 1234, OPTIONAL: "OPTIONAL" }
