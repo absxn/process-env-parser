@@ -132,7 +132,7 @@ export function parseEnvironmentVariables<
         result[variable] = config.default;
         printableResult[variable] = `${
           config.mask ? "<masked>" : toPrintable(result[variable])
-        }`;
+        } (default)`;
       } else {
         printableResult[variable] = "<missing>";
         fail = true;

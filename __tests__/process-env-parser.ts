@@ -77,7 +77,10 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { EMPTY_STRING: "EMPTY_STRING", OPTIONAL: "OPTIONAL" },
-      envPrintable: { EMPTY_STRING: `"EMPTY_STRING"`, OPTIONAL: `"OPTIONAL"` }
+      envPrintable: {
+        EMPTY_STRING: `"EMPTY_STRING" (default)`,
+        OPTIONAL: `"OPTIONAL" (default)`
+      }
     });
   });
 
@@ -100,7 +103,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { PARSED_OPTIONAL_MISSING: 4321 },
-      envPrintable: { PARSED_OPTIONAL_MISSING: "4321" }
+      envPrintable: { PARSED_OPTIONAL_MISSING: "4321 (default)" }
     });
   });
 
@@ -151,7 +154,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { MASKED_DEFAULT: "secret" },
-      envPrintable: { MASKED_DEFAULT: "<masked>" }
+      envPrintable: { MASKED_DEFAULT: "<masked> (default)" }
     });
   });
 
@@ -162,7 +165,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { PARSED_OPTIONAL_MISSING: "STRING" },
-      envPrintable: { PARSED_OPTIONAL_MISSING: `"STRING"` }
+      envPrintable: { PARSED_OPTIONAL_MISSING: `"STRING" (default)` }
     });
   });
 
@@ -190,7 +193,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { V: true },
-      envPrintable: { V: "true" }
+      envPrintable: { V: "true (default)" }
     });
   });
 
@@ -203,7 +206,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { V: null },
-      envPrintable: { V: "null" }
+      envPrintable: { V: "null (default)" }
     });
   });
 
@@ -216,7 +219,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { V: undefined },
-      envPrintable: { V: "undefined" }
+      envPrintable: { V: "undefined (default)" }
     });
   });
 
@@ -229,7 +232,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { V: { key: "value" } },
-      envPrintable: { V: "object" }
+      envPrintable: { V: "object (default)" }
     });
   });
 
@@ -243,7 +246,7 @@ describe("Environment variable parser", () => {
     expect(result).toEqual({
       success: true,
       env: { V: func },
-      envPrintable: { V: "function" }
+      envPrintable: { V: "function (default)" }
     });
   });
 });
