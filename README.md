@@ -59,6 +59,7 @@ if (result.success) {
 - [Formatter](#formatter)
   - [`console.table()`](#consoletable)
   - [Oneliner](#oneliner)
+  - [Multi-line](#multi-line)
 
 ## Rationale
 
@@ -437,4 +438,22 @@ console.log(Formatter.oneliner(result));
 // > API_KEY=<masked>, DATABASE_URL="mysql://localhost:3306/app", LISTEN_PORT=8080, SERVICE_NAME="app"
 // else:
 // > API_KEY=<masked>, DATABASE_URL=<parser: "Invalid URL: localhost">, LISTEN_PORT=3000, SERVICE_NAME=<missing>
+```
+
+### Multi-line
+
+Output using same data as above example:
+
+```typescript
+console.log(Formatter.multiLine(result));
+// if (result.success === true):
+// > API_KEY = <masked>
+//   DATABASE_URL = "mysql://localhost:3306/app"
+//   LISTEN_PORT = 8080
+//   SERVICE_NAME = "app"
+// else:
+// > API_KEY = <masked>
+//   DATABASE_URL = <parser: "Invalid URL: localhost">
+//   LISTEN_PORT = 3000
+//   SERVICE_NAME = <missing>
 ```
