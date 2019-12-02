@@ -39,7 +39,7 @@ if (result.success) {
   // ├──────────────┼──────────────────────────────────────┤
   // │   API_KEY    │             '<masked>'               │
   // │ DATABASE_URL │ '<parser: "Invalid URL: localhost">' │
-  // │ LISTEN_PORT  │               '3000'                 │
+  // │ LISTEN_PORT  │          '3000 (default)'            │
   // │ SERVICE_NAME │             '<missing>'              │
   // └──────────────┴──────────────────────────────────────┘
 
@@ -453,8 +453,8 @@ console.log(Formatter.multiLine(result));
 //   LISTEN_PORT = 8080
 //   SERVICE_NAME = "app"
 // else:
-// > API_KEY = <masked>
+// > API_KEY = <masked> (default)
 //   DATABASE_URL = <parser: "Invalid URL: localhost">
-//   LISTEN_PORT = 3000
+//   LISTEN_PORT = 3000 (default)
 //   SERVICE_NAME = <missing>
 ```
