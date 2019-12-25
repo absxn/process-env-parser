@@ -29,12 +29,12 @@
   "author": "absxn.com",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "@types/node": "^12.6.8",
-    "jest": "^24.8.0",
-    "prettier": "^1.18.2",
-    "ts-jest": "^24.0.2",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
+    "@types/jest": "^24.0.24",
+    "@types/node": "^13.1.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.2.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
   }
 }
