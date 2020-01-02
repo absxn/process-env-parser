@@ -33,11 +33,20 @@ type EnvironmentVariablesPrintable<
   [EnvironmentVariableName in keyof Configuration]: string;
 };
 
+type MaskFunction<T> = (value: T) => string;
+
+type MaskOption<ParsedVariable> = {
+  mask?: boolean | MaskFunction<ParsedVariable>;
+};
+
+type EnvironmentVariableOption<ParsedVariable> = (
+  | ParserOption<ParsedVariable>
+  | ParserOptionDefault) & {
+  default?: ParsedVariable;
+} & MaskOption<ParsedVariable>;
+
 type EnvironmentVariableOptions = {
-  [key: string]: (ParserOption<any> | ParserOptionDefault) & {
-    default?: any;
-    mask?: boolean;
-  };
+  [key: string]: EnvironmentVariableOption<any>;
 };
 
 interface Status<Configuration extends EnvironmentVariableOptions> {
@@ -119,7 +128,9 @@ export function parseEnvironmentVariables<
       try {
         result[variable] = config.parser ? config.parser(value) : value;
         printableResult[variable] = config.mask
-          ? "<masked>"
+          ? typeof config.mask === "boolean"
+            ? "<masked>"
+            : `<masked: ${JSON.stringify(config.mask(result[variable]))}>`
           : JSON.stringify(result[variable]);
       } catch (e) {
         printableResult[variable] = `<parser: "${e.message}">`;
@@ -253,6 +264,53 @@ function nonNullable<T extends { [k in Key]: T[k] }, Key extends keyof T>(
   return truthy ? output : null;
 }
 
+type UrlWriteableKeys =
+  | "hash"
+  | "hostname"
+  | "password"
+  | "pathname"
+  | "port"
+  | "protocol"
+  | "search"
+  | "username";
+
+function url(...maskedFields: UrlWriteableKeys[]): MaskFunction<string | URL> {
+  const mask = "*****";
+  return url => {
+    // We must not mutate original URL object if one is passed in
+    const u = new URL(typeof url === "string" ? url : url.toString());
+    const portString = `:${u.port}`;
+
+    for (const field of maskedFields) {
+      // Plain path does not get masked (if input string does not have "/",
+      // URL() adds it
+      if ((field === "pathname" && u["pathname"] === "/") || field === "port") {
+        continue;
+      }
+      if (u[field]) {
+        u[field] = mask;
+      }
+    }
+
+    // Mask string is not a valid URL part, so we need to do string replacement
+    // for some of them instead of trying to set the value
+    let urlString = u.toString();
+
+    if (maskedFields.includes("port") && u.port) {
+      urlString = urlString.replace(portString, `:${mask}`);
+    }
+    if (maskedFields.includes("protocol")) {
+      urlString = urlString.replace(/^[^:]+:\/\//, `${mask}://`);
+    }
+
+    return urlString;
+  };
+}
+
+const urlPassword = url("password");
+
+const urlUsernameAndPassword = url("username", "password");
+
 export const Formatter = {
   oneliner,
   multiLine
@@ -260,4 +318,10 @@ export const Formatter = {
 
 export const Combine = {
   nonNullable
+};
+
+export const Mask = {
+  url,
+  urlPassword,
+  urlUsernameAndPassword
 };

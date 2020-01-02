@@ -1,6 +1,7 @@
 import {
   Combine,
   Formatter,
+  Mask,
   parseEnvironmentVariables,
   requireEnvironmentVariables
 } from "../process-env-parser";
@@ -128,6 +129,24 @@ describe("Environment variable parser", () => {
       success: true,
       env: { MASK: 1234 },
       envPrintable: { MASK: "<masked>" }
+    });
+  });
+
+  it("masks using a masking function that utilizes parser output", () => {
+    process.env.MASK_FN = "user:pass";
+    const result = parseEnvironmentVariables({
+      MASK_FN: {
+        mask: credentials => `${credentials.user}:*****`,
+        parser: (s: string) => {
+          const [user, pass] = s.split(":");
+          return { user, pass };
+        }
+      }
+    });
+    expect(result).toEqual({
+      success: true,
+      env: { MASK_FN: { user: "user", pass: "pass" } },
+      envPrintable: { MASK_FN: `<masked: "user:*****">` }
     });
   });
 
@@ -336,6 +355,108 @@ describe("Combine nonNullable()", () => {
         C: "c"
       })
     ).toThrow(new Error("Mix of non-nullable (A, C) and nullable (B) values"));
+  });
+});
+
+describe("Mask", () => {
+  describe("url()", () => {
+    it("can read URL objects", () => {
+      const testUrl = "http://user:pass@localhost";
+      process.env.DB_URL = testUrl;
+      const result = parseEnvironmentVariables({
+        DB_URL: {
+          parser: s => new URL(s), // URL object will go through mask function
+          mask: Mask.url("password")
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: { DB_URL: new URL(testUrl) },
+        envPrintable: {
+          DB_URL: `<masked: "http://user:*****@localhost/">` // Parser adds a trailing slash
+        }
+      });
+    });
+
+    it("does not mask empty pathname", () => {
+      process.env.DB_URL = "http://localhost";
+      const result = parseEnvironmentVariables({
+        DB_URL: {
+          mask: Mask.url("pathname")
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: { DB_URL: "http://localhost" },
+        envPrintable: {
+          DB_URL: `<masked: "http://localhost/">` // Parser adds a trailing slash
+        }
+      });
+    });
+
+    it("can mask all parts of the url", () => {
+      process.env.DB_URL =
+        "http://user:pass@10.11.12.13:8080/some/path?query=foo#hash";
+      const result = parseEnvironmentVariables({
+        DB_URL: {
+          mask: Mask.url(
+            "hash",
+            "hostname",
+            "password",
+            "pathname",
+            "port",
+            "protocol",
+            "search",
+            "username"
+          )
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: {
+          DB_URL: "http://user:pass@10.11.12.13:8080/some/path?query=foo#hash"
+        },
+        envPrintable: {
+          DB_URL: `<masked: "*****://*****:*****@*****:*****/*****?*****#*****">`
+        }
+      });
+    });
+  });
+
+  describe("urlPassword()", () => {
+    it("masks password", () => {
+      process.env.DB_URL = "postgre://user:pass@localhost:5432/db";
+      const result = parseEnvironmentVariables({
+        DB_URL: {
+          mask: Mask.urlPassword
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: { DB_URL: "postgre://user:pass@localhost:5432/db" },
+        envPrintable: {
+          DB_URL: `<masked: "postgre://user:*****@localhost:5432/db">`
+        }
+      });
+    });
+  });
+
+  describe("urlUsernameAndPassword()", () => {
+    it("masks username and password", () => {
+      process.env.DB_URL = "postgre://user:pass@localhost:5432/db";
+      const result = parseEnvironmentVariables({
+        DB_URL: {
+          mask: Mask.urlUsernameAndPassword
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: { DB_URL: "postgre://user:pass@localhost:5432/db" },
+        envPrintable: {
+          DB_URL: `<masked: "postgre://*****:*****@localhost:5432/db">`
+        }
+      });
+    });
   });
 });
 
