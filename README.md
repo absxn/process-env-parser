@@ -189,8 +189,9 @@ interface Config {
     // If `true`, the value of the variable is never shown in plain text in
     // the `envPrintable` fields of the return object. Value is indicated as
     // `<masked>`. If function, the argument is 1) return value of parser 2)
-    // environment variable value 3) default value. Return value of the function
-    // is the value to be shown in `envPrintable`.
+    // environment variable value. Default value bypasses the function and gets
+    // displayed as `<masked> (default)`. Return value of the function is the
+    // value to be shown in `envPrintable`, formatted as <masked: "value">.
     mask?: boolean | (value: any) => string;
   };
 }

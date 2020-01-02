@@ -360,6 +360,24 @@ describe("Combine nonNullable()", () => {
 
 describe("Mask", () => {
   describe("url()", () => {
+    it("does not get invoked for default value", () => {
+      const testUrl = "http://user:pass@localhost";
+      const defaultValue = new URL(testUrl);
+      const result = parseEnvironmentVariables({
+        DEFAULT_WITH_MASK: {
+          default: defaultValue,
+          mask: Mask.url("password")
+        }
+      });
+      expect(result).toEqual({
+        success: true,
+        env: { DEFAULT_WITH_MASK: defaultValue },
+        envPrintable: {
+          DEFAULT_WITH_MASK: `<masked> (default)`
+        }
+      });
+    });
+
     it("can read URL objects", () => {
       const testUrl = "http://user:pass@localhost";
       process.env.DB_URL = testUrl;
