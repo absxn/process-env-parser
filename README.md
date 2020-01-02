@@ -336,7 +336,8 @@ import { Mask } from "@absxn/process-env-parser";
 
 A function that returns a function that applies the mask to given URL parts.
 Valid URL parts are `"hash"`, `"hostname"`, `"password"`, `"pathname"`,
-`"port"`, `"protocol"`, `"search"`, and `"username"`.
+`"port"`, `"protocol"`, `"search"`, and `"username"`. Can handle both URL
+strings and URL objects (from `parser` or `default`).
 
 ```typescript
 const result = parseEnvironmentVariables({
