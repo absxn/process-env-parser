@@ -16,11 +16,15 @@ declare type EnvironmentVariables<Configuration extends EnvironmentVariableOptio
 declare type EnvironmentVariablesPrintable<Configuration extends EnvironmentVariableOptions> = {
     [EnvironmentVariableName in keyof Configuration]: string;
 };
+declare type MaskFunction<T> = (value: T) => string;
+declare type MaskOption<ParsedVariable> = {
+    mask?: boolean | MaskFunction<ParsedVariable>;
+};
+declare type EnvironmentVariableOption<ParsedVariable> = (ParserOption<ParsedVariable> | ParserOptionDefault) & {
+    default?: ParsedVariable;
+} & MaskOption<ParsedVariable>;
 declare type EnvironmentVariableOptions = {
-    [key: string]: (ParserOption<any> | ParserOptionDefault) & {
-        default?: any;
-        mask?: boolean;
-    };
+    [key: string]: EnvironmentVariableOption<any>;
 };
 interface Status<Configuration extends EnvironmentVariableOptions> {
     /**
@@ -94,11 +98,18 @@ declare function nonNullable<T extends {
 }, Key extends keyof T>(environmentVariableMapping: T): {
     [k in Key]: NonNullable<T[k]>;
 } | null;
+declare type UrlWriteableKeys = "hash" | "hostname" | "password" | "pathname" | "port" | "protocol" | "search" | "username";
+declare function url(...maskedFields: UrlWriteableKeys[]): MaskFunction<string | URL>;
 export declare const Formatter: {
     oneliner: typeof oneliner;
     multiLine: typeof multiLine;
 };
 export declare const Combine: {
     nonNullable: typeof nonNullable;
+};
+export declare const Mask: {
+    url: typeof url;
+    urlPassword: MaskFunction<string | URL>;
+    urlUsernameAndPassword: MaskFunction<string | URL>;
 };
 export {};

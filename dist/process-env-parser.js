@@ -38,12 +38,23 @@ function parseEnvironmentVariables(configuration) {
         if (value !== undefined && value.trim() !== "") {
             try {
                 result[variable] = config.parser ? config.parser(value) : value;
-                printableResult[variable] = config.mask
-                    ? "<masked>"
-                    : JSON.stringify(result[variable]);
             }
             catch (e) {
                 printableResult[variable] = "<parser: \"" + e.message + "\">";
+                fail = true;
+            }
+            if (fail) {
+                continue;
+            }
+            try {
+                printableResult[variable] = config.mask
+                    ? typeof config.mask === "boolean"
+                        ? "<masked>"
+                        : "<masked: " + JSON.stringify(config.mask(result[variable])) + ">"
+                    : JSON.stringify(result[variable]);
+            }
+            catch (e) {
+                printableResult[variable] = "<mask: \"" + e.message + "\">";
                 fail = true;
             }
         }
@@ -157,11 +168,51 @@ function nonNullable(environmentVariableMapping) {
     }
     return truthy ? output : null;
 }
+function url() {
+    var maskedFields = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        maskedFields[_i] = arguments[_i];
+    }
+    var mask = "*****";
+    return function (url) {
+        // We must not mutate original URL object if one is passed in
+        var u = new URL(typeof url === "string" ? url : url.toString());
+        var portString = ":" + u.port;
+        for (var _i = 0, maskedFields_1 = maskedFields; _i < maskedFields_1.length; _i++) {
+            var field = maskedFields_1[_i];
+            // Plain path does not get masked (if input string does not have "/",
+            // URL() adds it
+            if ((field === "pathname" && u["pathname"] === "/") || field === "port") {
+                continue;
+            }
+            if (u[field]) {
+                u[field] = mask;
+            }
+        }
+        // Mask string is not a valid URL part, so we need to do string replacement
+        // for some of them instead of trying to set the value
+        var urlString = u.toString();
+        if (maskedFields.includes("port") && u.port) {
+            urlString = urlString.replace(portString, ":" + mask);
+        }
+        if (maskedFields.includes("protocol")) {
+            urlString = urlString.replace(/^[^:]+:\/\//, mask + "://");
+        }
+        return urlString;
+    };
+}
+var urlPassword = url("password");
+var urlUsernameAndPassword = url("username", "password");
 exports.Formatter = {
     oneliner: oneliner,
     multiLine: multiLine
 };
 exports.Combine = {
     nonNullable: nonNullable
+};
+exports.Mask = {
+    url: url,
+    urlPassword: urlPassword,
+    urlUsernameAndPassword: urlUsernameAndPassword
 };
 //# sourceMappingURL=process-env-parser.js.map
