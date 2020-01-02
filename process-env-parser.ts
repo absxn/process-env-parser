@@ -127,13 +127,23 @@ export function parseEnvironmentVariables<
     if (value !== undefined && value.trim() !== "") {
       try {
         result[variable] = config.parser ? config.parser(value) : value;
+      } catch (e) {
+        printableResult[variable] = `<parser: "${e.message}">`;
+        fail = true;
+      }
+
+      if (fail) {
+        continue;
+      }
+
+      try {
         printableResult[variable] = config.mask
           ? typeof config.mask === "boolean"
             ? "<masked>"
             : `<masked: ${JSON.stringify(config.mask(result[variable]))}>`
           : JSON.stringify(result[variable]);
       } catch (e) {
-        printableResult[variable] = `<parser: "${e.message}">`;
+        printableResult[variable] = `<mask: "${e.message}">`;
         fail = true;
       }
     } else {

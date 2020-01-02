@@ -150,6 +150,21 @@ describe("Environment variable parser", () => {
     });
   });
 
+  it("masks using a masking function catches exceptions", () => {
+    process.env.MASK_FN = "user:pass";
+    const result = parseEnvironmentVariables({
+      MASK_FN: {
+        mask: _ => {
+          throw new Error("ERROR");
+        },
+      }
+    });
+    expect(result).toEqual({
+      success: false,
+      envPrintable: { MASK_FN: `<mask: "ERROR">` }
+    });
+  });
+
   it("shows parser errors even when masked", () => {
     process.env.MASK = "1234";
     const result = parseEnvironmentVariables({
