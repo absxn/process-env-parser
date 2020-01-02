@@ -349,11 +349,13 @@ contain `{ API_URL: "https://user:*****@1.2.3.4/*****" }`.
 
 ### urlPassword()
 
-Same as `url("password")`, resulting in "protocol://user:**\***@hostname/...".
+Same as `url("password")`, resulting in
+`"protocol://user:*****@hostname/api/path"`
 
 ### urlUsernameAndPassword()
 
-Same as `url("username", "password")`, resulting in "protocol://**\***:**\***@hostname/...".
+Same as `url("username", "password")`, resulting in
+`"protocol://*****:*****@hostname/api/path"`.
 
 ## Combine
 
