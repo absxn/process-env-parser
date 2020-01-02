@@ -332,7 +332,7 @@ Helpers for masking parts of variables for output.
 import { Mask } from "@absxn/process-env-parser";
 ```
 
-### url()
+### `url()`
 
 A function that returns a function that applies the mask to given URL parts.
 Valid URL parts are `"hash"`, `"hostname"`, `"password"`, `"pathname"`,
@@ -347,12 +347,12 @@ const result = parseEnvironmentVariables({
 For `API_URL=https://user:pass@1.2.3.4/api/path`, the `envPrintable` would
 contain `{ API_URL: "https://user:*****@1.2.3.4/*****" }`.
 
-### urlPassword()
+### `urlPassword()`
 
 Same as `url("password")`, resulting in
 `"protocol://user:*****@hostname/api/path"`
 
-### urlUsernameAndPassword()
+### `urlUsernameAndPassword()`
 
 Same as `url("username", "password")`, resulting in
 `"protocol://*****:*****@hostname/api/path"`.
