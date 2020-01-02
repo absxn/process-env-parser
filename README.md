@@ -6,7 +6,7 @@ debugging for `node` applications.
 ```typescript
 const result = parseEnvironmentVariables({
   API_KEY: { mask: true, default: null },
-  DATABASE_URL: { parser: s => new URL(s).toString() },
+  DATABASE_URL: { parser: s => new URL(s), mask: Mask.url("password") },
   LISTEN_PORT: { parser: parseInt, default: 3000 },
   SERVICE_NAME: {}
 });
@@ -14,34 +14,30 @@ const result = parseEnvironmentVariables({
 if (result.success) {
   // Sample success output
   console.table(result.envPrintable);
-  // ┌──────────────┬────────────────────────────────┐
-  // │   (index)    │             Values             │
-  // ├──────────────┼────────────────────────────────┤
-  // │   API_KEY    │           '<masked>'           │
-  // │ DATABASE_URL │ '"mysql://localhost:3306/app"' │
-  // │ LISTEN_PORT  │             '8080'             │
-  // │ SERVICE_NAME │            '"app"'             │
-  // └──────────────┴────────────────────────────────┘
+  // ┌──────────────┬─────────────────────────────────────────────────────┐
+  // │   (index)    │                       Values                        │
+  // ├──────────────┼─────────────────────────────────────────────────────┤
+  // │   API_KEY    │                     '<masked>'                      │
+  // │ DATABASE_URL │ '<masked: "mysql://user:*****@localhost:3306/app">' │
+  // │ LISTEN_PORT  │                       '8080'                        │
+  // │ SERVICE_NAME │                      '"app"'                        │
+  // └──────────────┴─────────────────────────────────────────────────────┘
 
   // Inferred type for successfully parsed environment
   // {
   //   API_KEY: string | null
-  //   DATABASE_URL: string
+  //   DATABASE_URL: URL
   //   LISTEN_PORT: number
   //   SERVICE_NAME: string
   // }
   return result.env;
 } else {
-  // Sample failure output
-  console.table(result.envPrintable);
-  // ┌──────────────┬──────────────────────────────────────┐
-  // │   (index)    │                Values                │
-  // ├──────────────┼──────────────────────────────────────┤
-  // │   API_KEY    │             '<masked>'               │
-  // │ DATABASE_URL │ '<parser: "Invalid URL: localhost">' │
-  // │ LISTEN_PORT  │          '3000 (default)'            │
-  // │ SERVICE_NAME │             '<missing>'              │
-  // └──────────────┴──────────────────────────────────────┘
+  // Sample formatted output
+  console.log(Formatter.multiLine(result));
+  // API_KEY = <masked>
+  // DATABASE_URL = <parser: "Invalid URL: localhost">
+  // LISTEN_PORT = 3000 (default)
+  // SERVICE_NAME = <missing>
 
   throw new Error("Could not parse environment variables");
 }
@@ -54,6 +50,10 @@ if (result.success) {
   - [`parseEnvironmentVariables()`: Optional and parsed variables](#success-optional-and-parsed-variables)
   - [Fail: Variable missing](#fail-variable-missing)
   - [Fail: Parser throwing](#fail-parser-throwing)
+- [Mask](#mask)
+  - [`url()`](#url)
+  - [`urlPassword()`](#urlpassword)
+  - [`urlUsernameAndPassword()`](#urlusernameandpassword)
 - [Combine](#combine)
   - [Non-nullable](#non-nullable)
 - [Formatter](#formatter)
@@ -188,8 +188,10 @@ interface Config {
     parser?: (value: string) => any;
     // If `true`, the value of the variable is never shown in plain text in
     // the `envPrintable` fields of the return object. Value is indicated as
-    // `<masked>`.
-    mask?: boolean;
+    // `<masked>`. If function, the argument is 1) return value of parser 2)
+    // environment variable value 3) default value. Return value of the function
+    // is the value to be shown in `envPrintable`.
+    mask?: boolean | (value: any) => string;
   };
 }
 ```
@@ -321,6 +323,37 @@ if (result.success) {
   // └───────────────────┴────────────────────────────┘
 }
 ```
+
+## Mask
+
+Helpers for masking parts of variables for output.
+
+```typescript
+import { Mask } from "@absxn/process-env-parser";
+```
+
+### url()
+
+A function that returns a function that applies the mask to given URL parts.
+Valid URL parts are `"hash"`, `"hostname"`, `"password"`, `"pathname"`,
+`"port"`, `"protocol"`, `"search"`, and `"username"`.
+
+```typescript
+const result = parseEnvironmentVariables({
+  API_URL: { parser: s => new URL(s), mask: Mask.url("password", "path") }
+});
+```
+
+For `API_URL=https://user:pass@1.2.3.4/api/path`, the `envPrintable` would
+contain `{ API_URL: "https://user:*****@1.2.3.4/*****" }`.
+
+### urlPassword()
+
+Same as `url("password")`, resulting in "protocol://user:**\***@hostname/...".
+
+### urlUsernameAndPassword()
+
+Same as `url("username", "password")`, resulting in "protocol://**\***:**\***@hostname/...".
 
 ## Combine
 
