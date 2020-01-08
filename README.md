@@ -50,7 +50,7 @@ if (result.success) {
   - [`parseEnvironmentVariables()`: Optional and parsed variables](#success-optional-and-parsed-variables)
   - [Fail: Variable missing](#fail-variable-missing)
   - [Fail: Parser throwing](#fail-parser-throwing)
-- [Mask](#mask)
+- [Mask](#mask) – `v1.1.0` (mask function)
   - [`url()`](#url)
   - [`urlPassword()`](#urlpassword)
   - [`urlUsernameAndPassword()`](#urlusernameandpassword)
