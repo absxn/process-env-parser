@@ -174,26 +174,35 @@ specifying how to handle that variable.
 The available options are:
 
 ```typescript
-interface Config {
-  [variableName: string]: {
-    // If variable is not found, use this as its value. If `default` not
-    // given, variable is mandatory, in which case, a missing variable leads
-    // to Fail being returned. If default value was used, envPrintable will
-    // have " (default)" appended to the printable value.
-    default?: any;
-    // When variable is read, its value is passed first to the parser
-    // function. Return value of the parser is used as the variable value in
-    // the output. If the parser throws, the function will return a Fail
-    // object.
-    parser?: (value: string) => any;
-    // If `true`, the value of the variable is never shown in plain text in
-    // the `envPrintable` fields of the return object. Value is indicated as
-    // `<masked>`. If function, the argument is 1) return value of parser 2)
-    // environment variable value. Default value bypasses the function and gets
-    // displayed as `<masked> (default)`. Return value of the function is the
-    // value to be shown in `envPrintable`, formatted as <masked: "value">.
-    mask?: boolean | (value: any) => string;
-  };
+interface Configuration {
+  // Each expected environment variable has its own options, the key is the name
+  // of the environment variable
+  [variableName: string]: EnvironmentVariableOptions
+}
+
+interface EnvironmentVariableOptions<Default = any, Parser = any> {
+  // If variable is not found, use this as its value. If `default` not given,
+  // variable is mandatory, in which case, a missing variable leads to Fail
+  // being returned. If default value was used, envPrintable will have
+  // " (default)" appended to the printable value.
+  default?: Default;
+  // When variable is read, its value is passed first to the parser function.
+  // Return value of the parser is used as the variable value in the output. If
+  // the parser throws, the function will return a Fail object.
+  parser?: (value: string) => Parser;
+  // If `true`, the value of the variable is never shown in plain text in the
+  // `envPrintable` fields of the return object. Value is indicated as
+  // `<masked>`.
+  //
+  // If function, the argument is:
+  //
+  //   1) Return value of the parser if variable set and parser is given
+  //   2) The environment variable value (string) if set and no parser given
+  //   3) Default value if environment variable is not set
+  //
+  // Return value of the function is the value to be shown in `envPrintable`,
+  // formatted as <masked: "value">.
+  mask?: boolean | ((value: Parser | string | Default) => string);
 }
 ```
 
