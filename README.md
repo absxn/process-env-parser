@@ -7,7 +7,10 @@ Simply mandating and reading a set of variables as strings:
 
 ```typescript
 const result = requireEnvironmentVariables(
-  "API_KEY", "DATABASE_URL", "LISTEN_PORT", "SERVICE_NAME"
+  "API_KEY",
+  "DATABASE_URL",
+  "LISTEN_PORT",
+  "SERVICE_NAME"
 );
 ```
 
@@ -189,7 +192,7 @@ The available options are:
 interface Configuration {
   // Each expected environment variable has its own options, the key is the name
   // of the environment variable
-  [variableName: string]: EnvironmentVariableOptions
+  [variableName: string]: EnvironmentVariableOptions;
 }
 
 interface EnvironmentVariableOptions<Default = any, Parser = any> {
@@ -282,11 +285,12 @@ $ VAR_A=value VAR_B= VAR_C="${X} ${Y} ${Z}" node app
 ```
 
 WARNING – Special cases for "meaningless" strings:
+
 - Empty string: `VAR_B` is also considered as missing. I.e. `process.env.VAR_B`
   does exist, but the parser considers `""` equal to not set.
 - Blank string: `VAR_C` is also considered not set. In this case, `X`, `Y`, `Z`
   are all `""`, so the resulting value of `VAR_C` is two spaces,
-  `"  "`. If value is surrounded by spaces, e.g. `" A "`, the spaces are
+  `" "`. If value is surrounded by spaces, e.g. `" A "`, the spaces are
   preserved as is through the parser.
 
 #### Code
@@ -469,7 +473,7 @@ As a built-in, `console.table()` is the easiest way to get a readable dump from
 the parser results.
 
 ```typescript
-const result = requireEnvironmentVariables("VARIABLE"/*, ...*/);
+const result = requireEnvironmentVariables("VARIABLE" /*, ...*/);
 
 console.table(result.envPrintable);
 // ┌──────────┬─────────┐

@@ -11,7 +11,5 @@
     "declaration": true,
     "sourceMap": true
   },
-  "include": [
-    "process-env-parser.ts"
-  ]
+  "include": ["process-env-parser.ts"]
 }

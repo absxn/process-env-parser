@@ -24,13 +24,21 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "test": "tsc -p . -p __tests__ --noEmit && jest --coverage"
+    "test": "tsc -p . -p __tests__ --noEmit && jest --coverage",
+    "lint": "prettier '**/*.{ts,json,md}' --check"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && tsc -p . --noEmit && npm run test",
+      "pre-push": "npm run lint && tsc -p . --noEmit && npm run test"
+    }
   },
   "author": "absxn.com",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^24.0.25",
     "@types/node": "^13.1.4",
+    "husky": "^4.0.1",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
     "ts-jest": "^24.3.0",
