@@ -156,7 +156,7 @@ describe("Environment variable parser", () => {
       MASK_FN: {
         mask: _ => {
           throw new Error("ERROR");
-        },
+        }
       }
     });
     expect(result).toEqual({

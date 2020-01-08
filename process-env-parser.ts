@@ -41,7 +41,8 @@ type MaskOption<ParsedVariable> = {
 
 type EnvironmentVariableOption<ParsedVariable> = (
   | ParserOption<ParsedVariable>
-  | ParserOptionDefault) & {
+  | ParserOptionDefault
+) & {
   default?: ParsedVariable;
 } & MaskOption<ParsedVariable>;
 
