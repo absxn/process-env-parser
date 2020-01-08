@@ -210,7 +210,7 @@ To succeed:
 
 - All varibales with no `default` given must exist in the environment
   - Empty string `""` is considered as non-existing!
-- No `parser` may throw
+- No `parser` or `mask` function may throw
   - Parser exceptions turn result into `Fail` and the exception message is
     captured in the `envPrintable` fields. See examples below.
 
