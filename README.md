@@ -53,6 +53,8 @@ if (result.success) {
 }
 ```
 
+## Contents
+
 - [Rationale](#rationale)
 - [Installation and usage](#installation-and-usage)
 - [Examples](#examples)
