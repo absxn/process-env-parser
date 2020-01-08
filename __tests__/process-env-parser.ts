@@ -375,7 +375,7 @@ describe("Combine nonNullable()", () => {
 
 describe("Mask", () => {
   describe("url()", () => {
-    it("does not get invoked for default value", () => {
+    it("does get invoked for default value", () => {
       const testUrl = "http://user:pass@localhost";
       const defaultValue = new URL(testUrl);
       const result = parseEnvironmentVariables({
@@ -388,7 +388,7 @@ describe("Mask", () => {
         success: true,
         env: { DEFAULT_WITH_MASK: defaultValue },
         envPrintable: {
-          DEFAULT_WITH_MASK: `<masked> (default)`
+          DEFAULT_WITH_MASK: `<masked: "http://user:*****@localhost/"> (default)`
         }
       });
     });
