@@ -3,6 +3,16 @@
 Straightforward and type-safe environment variable validation, parsing, and
 debugging for `node` applications.
 
+Simply mandating and reading a set of variables as strings:
+
+```typescript
+const result = requireEnvironmentVariables(
+  "API_KEY", "DATABASE_URL", "LISTEN_PORT", "SERVICE_NAME"
+);
+```
+
+Advanced declarative syntax for type safe parsers, default values, and masking:
+
 ```typescript
 const result = parseEnvironmentVariables({
   API_KEY: { mask: true, default: null },
