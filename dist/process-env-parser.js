@@ -16,6 +16,13 @@ function toPrintable(variable) {
         return typeOf;
     }
 }
+function toPrintableSafe(value, mask) {
+    return mask
+        ? typeof mask === "boolean"
+            ? "<masked>"
+            : "<masked: " + toPrintable(mask(value)) + ">"
+        : toPrintable(value);
+}
 /**
  * Read environment variables using variable-specific configurations.
  *
@@ -47,11 +54,7 @@ function parseEnvironmentVariables(configuration) {
                 continue;
             }
             try {
-                printableResult[variable] = config.mask
-                    ? typeof config.mask === "boolean"
-                        ? "<masked>"
-                        : "<masked: " + JSON.stringify(config.mask(result[variable])) + ">"
-                    : JSON.stringify(result[variable]);
+                printableResult[variable] = toPrintableSafe(result[variable], config.mask);
             }
             catch (e) {
                 printableResult[variable] = "<mask: \"" + e.message + "\">";
@@ -63,7 +66,7 @@ function parseEnvironmentVariables(configuration) {
             // need to check for existence of property in runtime
             if (config.hasOwnProperty("default")) {
                 result[variable] = config.default;
-                printableResult[variable] = (config.mask ? "<masked>" : toPrintable(result[variable])) + " (default)";
+                printableResult[variable] = toPrintableSafe(result[variable], config.mask) + " (default)";
             }
             else {
                 printableResult[variable] = "<missing>";
