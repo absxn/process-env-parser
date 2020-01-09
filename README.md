@@ -367,7 +367,7 @@ strings and URL objects (from `parser` or `default`).
 
 ```typescript
 const result = parseEnvironmentVariables({
-  API_URL: { parser: s => new URL(s), mask: Mask.url("password", "path") }
+  API_URL: { parser: s => new URL(s), mask: Mask.url("password", "pathname") }
 });
 ```
 
