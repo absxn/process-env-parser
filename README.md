@@ -67,8 +67,8 @@ if (result.success) {
   - [Fail: Parser throwing](#fail-parser-throwing)
 - [Mask](#mask) – `v1.1.0` (mask function)
   - [`url()`](#url)
-  - [`urlPassword()`](#urlpassword)
-  - [`urlUsernameAndPassword()`](#urlusernameandpassword)
+  - [`urlPassword`](#urlpassword)
+  - [`urlUsernameAndPassword`](#urlusernameandpassword)
 - [Combine](#combine)
   - [Non-nullable](#non-nullable)
 - [Formatter](#formatter)
@@ -374,12 +374,12 @@ const result = parseEnvironmentVariables({
 For `API_URL=https://user:pass@1.2.3.4/api/path`, the `envPrintable` would
 contain `{ API_URL: "https://user:*****@1.2.3.4/*****" }`.
 
-### `urlPassword()`
+### `urlPassword`
 
 Same as `url("password")`, resulting in
 `"protocol://user:*****@hostname/api/path"`
 
-### `urlUsernameAndPassword()`
+### `urlUsernameAndPassword`
 
 Same as `url("username", "password")`, resulting in
 `"protocol://*****:*****@hostname/api/path"`.
