@@ -65,6 +65,7 @@ if (result.success) {
   - [`parseEnvironmentVariables()`: Optional and parsed variables](#success-optional-and-parsed-variables)
   - [Fail: Variable missing](#fail-variable-missing)
   - [Fail: Parser throwing](#fail-parser-throwing)
+  - [Configuration files (`.env`, `dotfiles`)](#configuration-files)
 - [Mask](#mask) – `v1.1.0` (mask function)
   - [`url()`](#url)
   - [`urlPassword`](#urlpassword)
@@ -348,6 +349,31 @@ if (result.success) {
   // │ NOT_ACTUAL_NUMBER │ '<parser: "Not a number">' │
   // └───────────────────┴────────────────────────────┘
 }
+```
+
+### Configuration files
+
+If you are reading environment variables from configuration files, for example,
+parsing `.env` file using the [`dotenv` library](https://www.npmjs.com/package/dotenv),
+be sure to load the file BEFORE parsing. This way same validation and parsing
+rules can be applied to the merged environment variables.
+
+Easy way to avoid unsafe code is to never to access `process.env` directly, as
+it should never change after parsing. Parsing should have to be done only once.
+
+```sh
+# .env file
+HOST=localhost
+```
+
+```typescript
+import { parseEnvironmentVariables } from "@absxn/process-env-parser";
+
+// Merge startup variables from .env
+require("dotenv").config();
+
+// Account for startup variables and .env variables
+const result = parseEnvironmentVariables({ HOST: {} });
 ```
 
 ## Mask
