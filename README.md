@@ -1,7 +1,7 @@
 # process-env-parser
 
-Straightforward and type-safe environment variable validation, parsing, and
-debugging for `node` applications.
+Type-safe environment variable validation, parsing, and debugging for `node`
+applications, with zero added dependencies.
 
 Simply mandating and reading a set of variables as strings:
 
